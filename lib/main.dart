@@ -102,6 +102,7 @@ class DisplayState extends State<Display> {
 }
 
 void _addKey(String key) {
+  print(key);
   var _expr = _displayState._expression;
   var _result = '';
   if (_displayState._result.isNotEmpty) {
@@ -121,11 +122,61 @@ void _addKey(String key) {
   → 6+6*가 입력되어 있는 상황에서 +를 입력하면 6+6*+가 아니라 6+6+ 로 입력
 */
 
-
+// 1. digits [0-9]
+// 2. operators [+, -, *, /, (, )]
+// 3. dot [.]
+// 4. etc [C, clear, =]
+  int lastIdx = _expr.length - 1;
   if (digits.contains(key)){
+    // NOTE x digits
     _expr += key;
+  } else if (operators.contains(key)) {
+    // NOTE x operators
+    if (key != '(' && key != ')') {
+      print("key != '(' && key != '('");
+      // +, -, *, /
+      if (lastIdx >= 0) {
+        if (!operators.contains(_expr[lastIdx])) {
+          _expr += key;
+        } else {
+          _expr = _expr.substring(0, lastIdx) + key;
+        }
+      }
+    } else {
+      // (, )
+      print('(, )');
+      if (key == '(') {
+        if (lastIdx >= 0 && _expr[lastIdx] != '(') {
+          _expr += '*';
+        }
+        _expr += key;
+      } else {
+
+      }
+    }
+  } else if (dot.contains(key)) {
+    // NOTE x dot
+    print('key is .');
+    // NOTE x using regex ([0-9][.])+
+  } else {
+    // NOTE x etc
+    if (key == 'C') {
+      if (lastIdx >= 0) {
+        _expr = _expr.substring(0, lastIdx);
+      }
+    } else if (key == 'clear') {
+      _expr = '';
+    } else {
+      // need to check bracket pair
+      int countOpenBracket = '('.allMatches(_expr).length;
+      int countCloseBracket = ')'.allMatches(_expr).length;
+      if (countOpenBracket != countCloseBracket) {
+        // NOTE x throw error..?
+        print('throw error..?');
+      }
+    }
   }
-  
+
 ///////////////////////작성부분///////////////////////
 
   // ignore: invalid_use_of_protected_member
